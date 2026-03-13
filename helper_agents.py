@@ -8,9 +8,24 @@ from typing import List, Dict, Any
 
 def get_chat_completion(messages, temperature=0.0):
     """Helper to call OpenAI using the notebook's existing client and model."""
-    import __main__
-    client = getattr(__main__, 'client', None)
-    model = getattr(__main__, 'ACTIVE_MODEL', "gpt-4o-mini")
+    import sys
+    
+    # Check if running in Streamlit, __main__ might not have what we need
+    # We will try __main__ first, then mp3_assignment, lastly default to env globals
+    try:
+        import mp3_assignment as app_module
+    except ImportError:
+        import __main__ as app_module
+        
+    client = getattr(app_module, 'client', None)
+    if client is None:
+        import __main__
+        client = getattr(__main__, 'client', None)
+        
+    model = getattr(app_module, 'ACTIVE_MODEL', "gpt-4o-mini")
+    if getattr(app_module, 'ACTIVE_MODEL', None) is None:
+        import __main__
+        model = getattr(__main__, 'ACTIVE_MODEL', "gpt-4o-mini")
     
     if client is None:
         import os
@@ -24,8 +39,15 @@ def get_chat_completion(messages, temperature=0.0):
     )
 
 def get_all_schemas():
-    import __main__
-    return getattr(__main__, 'ALL_SCHEMAS', [])
+    try:
+        import mp3_assignment as app_module
+    except ImportError:
+        import __main__ as app_module
+    schemas = getattr(app_module, 'ALL_SCHEMAS', None)
+    if schemas is None:
+        import __main__
+        return getattr(__main__, 'ALL_SCHEMAS', [])
+    return schemas
 
 # ==========================================
 # 1. DATABASE AGENT
@@ -39,8 +61,11 @@ Only return information based on the data retrieved from the database. Do not ha
 """
 
 def run_database_agent(task: str, schemas: list, verbose: bool = True):
-    import __main__
-    run_sp = getattr(__main__, 'run_specialist_agent', None)
+    try:
+        from mp3_assignment import run_specialist_agent as run_sp
+    except ImportError:
+        import __main__
+        run_sp = getattr(__main__, 'run_specialist_agent', None)
     if not run_sp: raise ImportError("Missing run_specialist_agent in global scope")
 
     valid_tools = ["get_tickers_by_sector", "query_local_db"]
@@ -68,8 +93,11 @@ Never invent financial numbers. If the data is missing or returns an error, stat
 """
 
 def run_fundamentals_agent(task: str, schemas: list, verbose: bool = True):
-    import __main__
-    run_sp = getattr(__main__, 'run_specialist_agent', None)
+    try:
+        from mp3_assignment import run_specialist_agent as run_sp
+    except ImportError:
+        import __main__
+        run_sp = getattr(__main__, 'run_specialist_agent', None)
     
     valid_tools = ["get_company_overview"]
     agent_schemas = [s for s in schemas if s.get("function", {}).get("name") in valid_tools]
@@ -97,8 +125,11 @@ Do not hallucinate percentage changes or prices. Base all answers strictly on to
 """
 
 def run_technical_agent(task: str, schemas: list, verbose: bool = True):
-    import __main__
-    run_sp = getattr(__main__, 'run_specialist_agent', None)
+    try:
+        from mp3_assignment import run_specialist_agent as run_sp
+    except ImportError:
+        import __main__
+        run_sp = getattr(__main__, 'run_specialist_agent', None)
     
     valid_tools = ["get_price_performance", "get_market_status"]
     agent_schemas = [s for s in schemas if s.get("function", {}).get("name") in valid_tools]
@@ -125,8 +156,11 @@ Summarize the sentiment accurately without fabricating news stories.
 """
 
 def run_sentiment_agent(task: str, schemas: list, verbose: bool = True):
-    import __main__
-    run_sp = getattr(__main__, 'run_specialist_agent', None)
+    try:
+        from mp3_assignment import run_specialist_agent as run_sp
+    except ImportError:
+        import __main__
+        run_sp = getattr(__main__, 'run_specialist_agent', None)
     
     valid_tools = ["get_news_sentiment"]
     agent_schemas = [s for s in schemas if s.get("function", {}).get("name") in valid_tools]

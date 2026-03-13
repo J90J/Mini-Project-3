@@ -57,7 +57,8 @@ def create_local_database(csv_path: str = "sp500_companies.csv"):
     print(pd.read_sql_query("SELECT DISTINCT sector FROM stocks ORDER BY sector", conn).to_string(index=False))
     conn.close()
 
-create_local_database()
+if __name__ == "__main__":
+    create_local_database()
 
 # ── Tool 1 ── Provided ────────────────────────────────────────
 def get_price_performance(tickers: list, period: str = "1y") -> dict:
@@ -139,7 +140,8 @@ def query_local_db(sql: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
 
-print("✅ 5 provided tools ready")
+if __name__ == "__main__":
+    print("✅ 5 provided tools ready")
 
 # ── Tool 6 — YOUR IMPLEMENTATION ─────────────────────────────
 def get_company_overview(ticker: str) -> dict:
@@ -177,27 +179,28 @@ def get_tickers_by_sector(sector: str) -> dict:
 
 
 # ── Automated tests — all assertions must pass ────────────────
-print("=== Tool 6 tests ===")
-aapl = get_company_overview("AAPL")
-assert "pe_ratio" in aapl,             "Missing pe_ratio key"
-assert aapl.get("ticker") == "AAPL",   "ticker key wrong"
-assert aapl.get("name"),               "name should not be empty"
-print(f"  AAPL P/E: {aapl['pe_ratio']} ✅")
-
-bad = get_company_overview("INVALIDTICKER999")
-assert "error" in bad,                 "Invalid ticker should return error key"
-print(f"  Invalid ticker handled correctly ✅")
-
-print("\n=== Tool 7 tests ===")
-tech = get_tickers_by_sector("Information Technology")
-assert len(tech["stocks"]) > 0,        "Should find IT stocks (exact sector match)"
-print(f"  'Information Technology' → {len(tech['stocks'])} stocks ✅")
-
-semi = get_tickers_by_sector("semiconductor")
-assert len(semi["stocks"]) > 0,        "Should find via industry fallback (LIKE match)"
-print(f"  'semiconductor' (industry fallback) → {len(semi['stocks'])} stocks ✅")
-
-print("\n✅ All tool tests passed")
+if __name__ == "__main__":
+    print("=== Tool 6 tests ===")
+    aapl = get_company_overview("AAPL")
+    assert "pe_ratio" in aapl,             "Missing pe_ratio key"
+    assert aapl.get("ticker") == "AAPL",   "ticker key wrong"
+    assert aapl.get("name"),               "name should not be empty"
+    print(f"  AAPL P/E: {aapl['pe_ratio']} ✅")
+    
+    bad = get_company_overview("INVALIDTICKER999")
+    assert "error" in bad,                 "Invalid ticker should return error key"
+    print(f"  Invalid ticker handled correctly ✅")
+    
+    print("\n=== Tool 7 tests ===")
+    tech = get_tickers_by_sector("Information Technology")
+    assert len(tech["stocks"]) > 0,        "Should find IT stocks (exact sector match)"
+    print(f"  'Information Technology' → {len(tech['stocks'])} stocks ✅")
+    
+    semi = get_tickers_by_sector("semiconductor")
+    assert len(semi["stocks"]) > 0,        "Should find via industry fallback (LIKE match)"
+    print(f"  'semiconductor' (industry fallback) → {len(semi['stocks'])} stocks ✅")
+    
+    print("\n✅ All tool tests passed")
 
 def _s(name, desc, props, req):
     return {"type":"function","function":{
@@ -249,8 +252,9 @@ ALL_TOOL_FUNCTIONS = {
     "query_local_db"         : query_local_db,
 }
 
-print("✅ Schemas ready")
-print(f"   Tools available: {list(ALL_TOOL_FUNCTIONS.keys())}")
+if __name__ == "__main__":
+    print("✅ Schemas ready")
+    print(f"   Tools available: {list(ALL_TOOL_FUNCTIONS.keys())}")
 
 @dataclass
 class AgentResult:
@@ -271,7 +275,8 @@ class AgentResult:
             print(f"Issues     : {'; '.join(self.issues_found)}")
         print(f"Answer     :\n{textwrap.indent(self.answer[:500], '  ')}")
 
-print("✅ AgentResult defined")
+if __name__ == "__main__":
+    print("✅ AgentResult defined")
 
 def run_specialist_agent(
     agent_name   : str,
@@ -355,7 +360,8 @@ def run_specialist_agent(
         tools_called=tools_called,
         raw_data=raw_data
     )
-print("✅ run_specialist_agent ready")
+if __name__ == "__main__":
+    print("✅ run_specialist_agent ready")
 
 def run_baseline(question: str, verbose: bool = True) -> AgentResult:
     response = client.chat.completions.create(
@@ -376,11 +382,12 @@ def run_baseline(question: str, verbose: bool = True) -> AgentResult:
     # Use run_specialist_agent() with an empty tool_schemas list — or make the call directly.
     # Return an AgentResult with agent_name="Baseline" and tools_called=[].
 
-# Quick test
-bl = run_baseline("What is Apple's approximate P/E ratio?", verbose=True)
-assert bl.tools_called == [], "Baseline must not call any tools"
-assert bl.answer, "Answer must not be empty"
-bl.summary()
+if __name__ == "__main__":
+    # Quick test
+    bl = run_baseline("What is Apple's approximate P/E ratio?", verbose=True)
+    assert bl.tools_called == [], "Baseline must not call any tools"
+    assert bl.answer, "Answer must not be empty"
+    bl.summary()
 
 # ── YOUR SINGLE AGENT IMPLEMENTATION ─────────────────────────
 # Write your system prompt and run_single_agent() function here.
@@ -480,70 +487,73 @@ BENCHMARK_QUESTIONS = [
                 "compute proximity to the low, then fetch news sentiment for qualifying stocks."},
 ]
 
-print("--- Running Single Agent on 5 Benchmark Questions ---")
-for q in BENCHMARK_QUESTIONS[:5]:
-    print(f"\nQ: {q['question']}")
-    res = run_single_agent(q['question'])
-    if res:
-        res.summary()
+if __name__ == "__main__":
+    print("--- Running Single Agent on 5 Benchmark Questions ---")
+    for q in BENCHMARK_QUESTIONS[:5]:
+        print(f"\nQ: {q['question']}")
+        res = run_single_agent(q['question'])
+        if res:
+            res.summary()
 
 
 # ── YOUR MULTI-AGENT IMPLEMENTATION ──────────────────────────
 #
 from helper_agents import run_multi_agent
 
-# Test 1 — check return contract
-out1 = run_multi_agent("What is the P/E ratio of Apple (AAPL)?")
-assert "final_answer"   in out1, "Missing final_answer key"
-assert "agent_results"  in out1, "Missing agent_results key"
-assert "elapsed_sec"    in out1, "Missing elapsed_sec key"
-assert "architecture"   in out1, "Missing architecture key"
-print(f"Architecture : {out1['architecture']}")
-print(f"Agents ran   : {[r.agent_name for r in out1['agent_results']]}")
-print(f"Answer       : {out1['final_answer'][:200]}")
-
-# Test 2 — cross-domain hard question
-out2 = run_multi_agent("For the top 3 semiconductor stocks by 1-year return, what are their P/E ratios and current news sentiment?")
-print(f"Architecture : {out2['architecture']}")
-print(f"Agents ran   : {[r.agent_name for r in out2['agent_results']]}")
-print(f"Tools used   : {[t for r in out2['agent_results'] for t in r.tools_called]}")
-print(f"\nAnswer:\n{out2['final_answer'][:400]}")
+if __name__ == "__main__":
+    # Test 1 — check return contract
+    out1 = run_multi_agent("What is the P/E ratio of Apple (AAPL)?")
+    assert "final_answer"   in out1, "Missing final_answer key"
+    assert "agent_results"  in out1, "Missing agent_results key"
+    assert "elapsed_sec"    in out1, "Missing elapsed_sec key"
+    assert "architecture"   in out1, "Missing architecture key"
+    print(f"Architecture : {out1['architecture']}")
+    print(f"Agents ran   : {[r.agent_name for r in out1['agent_results']]}")
+    print(f"Answer       : {out1['final_answer'][:200]}")
+    
+    # Test 2 — cross-domain hard question
+    out2 = run_multi_agent("For the top 3 semiconductor stocks by 1-year return, what are their P/E ratios and current news sentiment?")
+    print(f"Architecture : {out2['architecture']}")
+    print(f"Agents ran   : {[r.agent_name for r in out2['agent_results']]}")
+    print(f"Tools used   : {[t for r in out2['agent_results'] for t in r.tools_called]}")
+    print(f"\nAnswer:\n{out2['final_answer'][:400]}")
 
 # ── YOUR EVALUATOR IMPLEMENTATION ────────────────────────────
 #
 from helper_agents import run_evaluator
 
-# ── Calibration tests — all three must behave as expected ─────
-print("=== Calibration Test 1 — correct answer (expect score=3) ===")
-t1 = run_evaluator(
-    question        = "What is the P/E ratio of Apple (AAPL)?",
-    expected_answer = "Should return AAPL P/E ratio as a single numeric value from Alpha Vantage.",
-    agent_answer    = "The current P/E ratio of Apple Inc. (AAPL) is 33.45 according to Alpha Vantage Data.",
-)
-print(f"  Score: {t1['score']}/3 | Hallucination: {t1['hallucination_detected']}")
-print(f"  Reasoning: {t1['reasoning']}")
-
-print("\n=== Calibration Test 2 — fabricated number (expect hallucination=True, score≤1) ===")
-t2 = run_evaluator(
-    question        = "What is the P/E ratio of Apple (AAPL)?",
-    expected_answer = "Should return AAPL P/E ratio as a single numeric value from Alpha Vantage.",
-    agent_answer    = "Apple's P/E ratio is approximately 28.5 based on current market conditions.",
-)
-print(f"  Score: {t2['score']}/3 | Hallucination: {t2['hallucination_detected']}")
-print(f"  Reasoning: {t2['reasoning']}")
-assert t2["hallucination_detected"] == True, "Should detect fabricated P/E as hallucination"
-
-print("\n=== Calibration Test 3 — refusal (expect score=0) ===")
-t3 = run_evaluator(
-    question        = "What is the P/E ratio of Apple (AAPL)?",
-    expected_answer = "Should return AAPL P/E ratio as a single numeric value from Alpha Vantage.",
-    agent_answer    = "I cannot retrieve real-time financial data. Please check Yahoo Finance.",
-)
-print(f"  Score: {t3['score']}/3 | Hallucination: {t3['hallucination_detected']}")
-print(f"  Reasoning: {t3['reasoning']}")
-assert t3["score"] == 0, "Refusal should score 0"
-
-print("\n✅ Evaluator calibration complete")
+if __name__ == "__main__":
+    # ── Calibration tests — all three must behave as expected ─────
+    print("=== Calibration Test 1 — correct answer (expect score=3) ===")
+    t1 = run_evaluator(
+        question        = "What is the P/E ratio of Apple (AAPL)?",
+        expected_answer = "Should return AAPL P/E ratio as a single numeric value from Alpha Vantage.",
+        agent_answer    = "The current P/E ratio of Apple Inc. (AAPL) is 33.45 according to Alpha Vantage Data.",
+    )
+    print(f"  Score: {t1['score']}/3 | Hallucination: {t1['hallucination_detected']}")
+    print(f"  Reasoning: {t1['reasoning']}")
+    
+    print("\n=== Calibration Test 2 — fabricated number (expect hallucination=True, score≤1) ===")
+    t2 = run_evaluator(
+        question        = "What is the P/E ratio of Apple (AAPL)?",
+        expected_answer = "Should return AAPL P/E ratio as a single numeric value from Alpha Vantage.",
+        agent_answer    = "Apple's P/E ratio is approximately 28.5 based on current market conditions.",
+    )
+    print(f"  Score: {t2['score']}/3 | Hallucination: {t2['hallucination_detected']}")
+    print(f"  Reasoning: {t2['reasoning']}")
+    assert t2["hallucination_detected"] == True, "Should detect fabricated P/E as hallucination"
+    
+    print("\n=== Calibration Test 3 — refusal (expect score=0) ===")
+    t3 = run_evaluator(
+        question        = "What is the P/E ratio of Apple (AAPL)?",
+        expected_answer = "Should return AAPL P/E ratio as a single numeric value from Alpha Vantage.",
+        agent_answer    = "I cannot retrieve real-time financial data. Please check Yahoo Finance.",
+    )
+    print(f"  Score: {t3['score']}/3 | Hallucination: {t3['hallucination_detected']}")
+    print(f"  Reasoning: {t3['reasoning']}")
+    assert t3["score"] == 0, "Refusal should score 0"
+    
+    print("\n✅ Evaluator calibration complete")
 
 BENCHMARK_QUESTIONS = [
     # ── EASY ──────────────────────────────────────────────────────────────
@@ -612,10 +622,11 @@ BENCHMARK_QUESTIONS = [
                 "compute proximity to the low, then fetch news sentiment for qualifying stocks."},
 ]
 
-print(f"✅ {len(BENCHMARK_QUESTIONS)} questions loaded")
-for tier in ["easy","medium","hard"]:
-    count = sum(1 for q in BENCHMARK_QUESTIONS if q["complexity"]==tier)
-    print(f"   {tier:8s}: {count} questions")
+if __name__ == "__main__":
+    print(f"✅ {len(BENCHMARK_QUESTIONS)} questions loaded")
+    for tier in ["easy","medium","hard"]:
+        count = sum(1 for q in BENCHMARK_QUESTIONS if q["complexity"]==tier)
+        print(f"   {tier:8s}: {count} questions")
 
 @dataclass
 class EvalRecord:
