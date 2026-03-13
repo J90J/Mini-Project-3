@@ -804,24 +804,25 @@ def run_full_evaluation(output_xlsx: str = "results.xlsx", delay_sec: float = 3.
     print(f"\n✅ Saved → {output_xlsx}")
     return output_xlsx
 
-print("✅ Evaluation runner ready")
-
-# ── Sanity check — one question, all three architectures ──────
-q_test = BENCHMARK_QUESTIONS[2]        # Q03 — easy fundamentals
-print(f"Test question: {q_test['question']}\n")
-
-bl_t = run_baseline(q_test["question"], verbose=False)
-sa_t = run_single_agent(q_test["question"], verbose=False)
-ma_t = run_multi_agent(q_test["question"], verbose=False)
-
-print(f"Baseline     : {bl_t.answer[:120]}")
-print(f"Single Agent : {sa_t.answer[:120]}  |  tools: {sa_t.tools_called}")
-print(f"Multi Agent  : {ma_t['final_answer'][:120]}  |  arch: {ma_t['architecture']}")
-
-ev_bl = run_evaluator(q_test["question"], q_test["expected"], bl_t.answer)
-ev_sa = run_evaluator(q_test["question"], q_test["expected"], sa_t.answer)
-ev_ma = run_evaluator(q_test["question"], q_test["expected"], ma_t["final_answer"])
-print(f"\nScores — Baseline: {ev_bl['score']}/3  |  Single: {ev_sa['score']}/3  |  Multi: {ev_ma['score']}/3")
+if __name__ == "__main__":
+    print("✅ Evaluation runner ready")
+    
+    # ── Sanity check — one question, all three architectures ──────
+    q_test = BENCHMARK_QUESTIONS[2]        # Q03 — easy fundamentals
+    print(f"Test question: {q_test['question']}\n")
+    
+    bl_t = run_baseline(q_test["question"], verbose=False)
+    sa_t = run_single_agent(q_test["question"], verbose=False)
+    ma_t = run_multi_agent(q_test["question"], verbose=False)
+    
+    print(f"Baseline     : {bl_t.answer[:120]}")
+    print(f"Single Agent : {sa_t.answer[:120]}  |  tools: {sa_t.tools_called}")
+    print(f"Multi Agent  : {ma_t['final_answer'][:120]}  |  arch: {ma_t['architecture']}")
+    
+    ev_bl = run_evaluator(q_test["question"], q_test["expected"], bl_t.answer)
+    ev_sa = run_evaluator(q_test["question"], q_test["expected"], sa_t.answer)
+    ev_ma = run_evaluator(q_test["question"], q_test["expected"], ma_t["final_answer"])
+    print(f"\nScores — Baseline: {ev_bl['score']}/3  |  Single: {ev_sa['score']}/3  |  Multi: {ev_ma['score']}/3")
 
 # ── Full evaluation — gpt-4o-mini ─────────────────────────────
 #ACTIVE_MODEL = MODEL_SMALL
