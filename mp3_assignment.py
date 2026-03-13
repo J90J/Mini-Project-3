@@ -12,9 +12,9 @@ try:
     print("Loaded keys from Google Colab Secrets")
 except ImportError:
     load_dotenv()
-    OPENAI_API_KEY = os.getenv("OpenAI_proj.3", "YOUR_KEY")
-    ALPHAVANTAGE_API_KEY = os.getenv("ALPHA_proj3", "YOUR_KEY")
-    print("Loaded keys from local .env file")
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("OpenAI_proj.3", "YOUR_KEY")
+    ALPHAVANTAGE_API_KEY = os.getenv("ALPHAVANTAGE_API_KEY") or os.getenv("ALPHA_proj3", "YOUR_KEY")
+    print("Loaded keys from local .env file or environment")
 
 MODEL_SMALL  = "gpt-4o-mini"
 MODEL_LARGE  = "gpt-4o"
