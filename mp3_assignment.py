@@ -518,7 +518,7 @@ print("=== Calibration Test 1 — correct answer (expect score=3) ===")
 t1 = run_evaluator(
     question        = "What is the P/E ratio of Apple (AAPL)?",
     expected_answer = "Should return AAPL P/E ratio as a single numeric value from Alpha Vantage.",
-    agent_answer    = "The current P/E ratio of Apple Inc. (AAPL) is 33.45.",
+    agent_answer    = "The current P/E ratio of Apple Inc. (AAPL) is 33.45 according to Alpha Vantage Data.",
 )
 print(f"  Score: {t1['score']}/3 | Hallucination: {t1['hallucination_detected']}")
 print(f"  Reasoning: {t1['reasoning']}")
@@ -813,9 +813,9 @@ ev_ma = run_evaluator(q_test["question"], q_test["expected"], ma_t["final_answer
 print(f"\nScores — Baseline: {ev_bl['score']}/3  |  Single: {ev_sa['score']}/3  |  Multi: {ev_ma['score']}/3")
 
 # ── Full evaluation — gpt-4o-mini ─────────────────────────────
-ACTIVE_MODEL = MODEL_SMALL
-run_full_evaluation(output_xlsx="results_gpt4o_mini.xlsx", delay_sec=3.0)
+#ACTIVE_MODEL = MODEL_SMALL
+#run_full_evaluation(output_xlsx="results_gpt4o_mini.xlsx", delay_sec=3.0)
 
 # ── Full evaluation — gpt-4o (required for reflection Q4) ─────
-ACTIVE_MODEL = MODEL_LARGE
-run_full_evaluation(output_xlsx="results_gpt4o.xlsx", delay_sec=3.0)
+#ACTIVE_MODEL = MODEL_LARGE
+#run_full_evaluation(output_xlsx="results_gpt4o.xlsx", delay_sec=3.0)

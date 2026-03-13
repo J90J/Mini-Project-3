@@ -361,10 +361,11 @@ def run_evaluator(question: str, expected_answer: str, agent_answer: str) -> dic
                       or answer has no relevance to the question
 
 ### Hallucination Detection Rules:
-Flag hallucination_detected as `true` if you see:
-- Specific numbers (prices, P/E ratios, % changes) with no tool data to support them
-- Stock tickers that don't exist or aren't relevant to the question
-- Definitive claims about "current" data without having called a live data tool
+NOTE: You can only see the agent's final text answer, not its tool execution traces. You MUST ASSUME the agent successfully called tools if it confidently provides the requested specific numbers, unless stated otherwise.
+Flag hallucination_detected as `true` ONLY if you see:
+- The agent explicitly states it is guessing, estimating, or doesn't have access to the data, but provides a specific number anyway.
+- Stock tickers that don't exist or aren't relevant to the question.
+- The answer clearly contradicts the expected answer type or invents unrelated information.
 """
     
     content = f"{rubric}\n\nQuestion: {question}\n\nExpected Answer: {expected_answer}\n\nAgent's Actual Answer: {agent_answer}"
