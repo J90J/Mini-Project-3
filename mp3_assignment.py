@@ -285,6 +285,7 @@ def run_specialist_agent(
     tool_schemas : list,
     max_iters    : int  = 8,
     verbose      : bool = True,
+    chat_history : list = None,
 ) -> AgentResult:
     """
     Core agentic loop used by every agent in this project.
@@ -305,10 +306,11 @@ def run_specialist_agent(
     max_iters     : hard cap on iterations to prevent infinite loops
     verbose       : print each tool call as it happens
     """
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": task}
-    ]
+    messages = [{"role": "system", "content": system_prompt}]
+    if chat_history:
+        messages.extend(chat_history)
+    messages.append({"role": "user", "content": task})
+    
     tools_called = []
     raw_data = {}
 
@@ -363,13 +365,15 @@ def run_specialist_agent(
 if __name__ == "__main__":
     print("✅ run_specialist_agent ready")
 
-def run_baseline(question: str, verbose: bool = True) -> AgentResult:
+def run_baseline(question: str, verbose: bool = True, chat_history: list = None) -> AgentResult:
+    messages = [{"role": "system", "content": "You are a helpful financial AI assistant. Answer the user's question directly based on your training knowledge. Do not use tools. If you are uncertain about exact numbers, state that you are making an estimate."}]
+    if chat_history:
+        messages.extend(chat_history)
+    messages.append({"role": "user", "content": question})
+    
     response = client.chat.completions.create(
         model=ACTIVE_MODEL,
-        messages=[
-            {"role": "system", "content": "You are a helpful financial AI assistant. Answer the user's question directly based on your training knowledge. Do not use tools. If you are uncertain about exact numbers, state that you are making an estimate."},
-            {"role": "user", "content": question}
-        ],
+        messages=messages,
         temperature=0.0
     )
     answer = response.choices[0].message.content
@@ -408,14 +412,15 @@ Follow these STRICT RULES:
 5. Provide your final answer clearly, confirming the data used to reach your conclusion.
 """
 
-def run_single_agent(question: str, verbose: bool = True) -> AgentResult:
+def run_single_agent(question: str, verbose: bool = True, chat_history: list = None) -> AgentResult:
     return run_specialist_agent(
         agent_name="Single Agent",
         system_prompt=SINGLE_AGENT_PROMPT,
         task=question,
         tool_schemas=ALL_SCHEMAS,
         max_iters=15,
-        verbose=verbose
+        verbose=verbose,
+        chat_history=chat_history
     )
 
 

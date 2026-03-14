@@ -138,14 +138,17 @@ if prompt := st.chat_input("E.g., What is Apple's P/E ratio?"):
             start_time = time.time()
             
             try:
+                # Prepare chat history by excluding the final prompt since it's passed directly 
+                chat_history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
+                
                 if agent_type == "Baseline Worker":
-                    res = mp3_assignment.run_baseline(prompt, verbose=False)
+                    res = mp3_assignment.run_baseline(prompt, chat_history=chat_history, verbose=False)
                     final_answer = res.answer
                 elif agent_type == "Single Agent":
-                    res = mp3_assignment.run_single_agent(prompt, verbose=False)
+                    res = mp3_assignment.run_single_agent(prompt, chat_history=chat_history, verbose=False)
                     final_answer = res.answer
                 else:
-                    res = mp3_assignment.run_multi_agent(prompt, verbose=False)
+                    res = mp3_assignment.run_multi_agent(prompt, chat_history=chat_history, verbose=False)
                     final_answer = res.get("final_answer", "Error resolving multi-agent results.")
             except Exception as e:
                 final_answer = f"Error processing request: {str(e)}"

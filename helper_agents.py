@@ -60,7 +60,7 @@ Use the `get_tickers_by_sector` tool to find requested companies.
 Only return information based on the data retrieved from the database. Do not hallucinate tickers.
 """
 
-def run_database_agent(task: str, schemas: list, verbose: bool = True):
+def run_database_agent(task: str, schemas: list, verbose: bool = True, chat_history: list = None):
     try:
         from mp3_assignment import run_specialist_agent as run_sp
     except ImportError:
@@ -78,7 +78,8 @@ def run_database_agent(task: str, schemas: list, verbose: bool = True):
         task=task,
         tool_schemas=agent_schemas,
         max_iters=5,
-        verbose=verbose
+        verbose=verbose,
+        chat_history=chat_history
     )
 
 # ==========================================
@@ -92,7 +93,7 @@ Use the `get_company_overview` tool to fetch this data for specific stock ticker
 Never invent financial numbers. If the data is missing or returns an error, state that clearly.
 """
 
-def run_fundamentals_agent(task: str, schemas: list, verbose: bool = True):
+def run_fundamentals_agent(task: str, schemas: list, verbose: bool = True, chat_history: list = None):
     try:
         from mp3_assignment import run_specialist_agent as run_sp
     except ImportError:
@@ -109,7 +110,8 @@ def run_fundamentals_agent(task: str, schemas: list, verbose: bool = True):
         task=task,
         tool_schemas=agent_schemas,
         max_iters=5,
-        verbose=verbose
+        verbose=verbose,
+        chat_history=chat_history
     )
 
 # ==========================================
@@ -124,7 +126,7 @@ Use the `get_market_status` tool to check if the market is open.
 Do not hallucinate percentage changes or prices. Base all answers strictly on tool outputs.
 """
 
-def run_technical_agent(task: str, schemas: list, verbose: bool = True):
+def run_technical_agent(task: str, schemas: list, verbose: bool = True, chat_history: list = None):
     try:
         from mp3_assignment import run_specialist_agent as run_sp
     except ImportError:
@@ -141,7 +143,8 @@ def run_technical_agent(task: str, schemas: list, verbose: bool = True):
         task=task,
         tool_schemas=agent_schemas,
         max_iters=5,
-        verbose=verbose
+        verbose=verbose,
+        chat_history=chat_history
     )
 
 # ==========================================
@@ -155,7 +158,7 @@ Use the `get_news_sentiment` tool to fetch news articles and their sentiment sco
 Summarize the sentiment accurately without fabricating news stories.
 """
 
-def run_sentiment_agent(task: str, schemas: list, verbose: bool = True):
+def run_sentiment_agent(task: str, schemas: list, verbose: bool = True, chat_history: list = None):
     try:
         from mp3_assignment import run_specialist_agent as run_sp
     except ImportError:
@@ -172,7 +175,8 @@ def run_sentiment_agent(task: str, schemas: list, verbose: bool = True):
         task=task,
         tool_schemas=agent_schemas,
         max_iters=5,
-        verbose=verbose
+        verbose=verbose,
+        chat_history=chat_history
     )
 
 # ==========================================
@@ -201,11 +205,13 @@ Example:
 ]
 """
 
-def get_orchestrator_plan(question: str, verbose: bool = True) -> list:
-    response = get_chat_completion([
-        {"role": "system", "content": ORCHESTRATOR_PROMPT},
-        {"role": "user", "content": question}
-    ])
+def get_orchestrator_plan(question: str, verbose: bool = True, chat_history: list = None) -> list:
+    messages = [{"role": "system", "content": ORCHESTRATOR_PROMPT}]
+    if chat_history:
+        messages.extend(chat_history)
+    messages.append({"role": "user", "content": question})
+    
+    response = get_chat_completion(messages)
     content = response.choices[0].message.content.strip()
     
     if content.startswith("```json"):
@@ -307,13 +313,13 @@ def run_synthesizer(question: str, agent_results: list, verbose: bool = True) ->
 # MULTI-AGENT RUNNER
 # ==========================================
 
-def run_multi_agent(question: str, verbose: bool = True) -> dict:
+def run_multi_agent(question: str, verbose: bool = True, chat_history: list = None) -> dict:
     start_time = time.time()
     
     schemas = get_all_schemas()
     
     if verbose: print(f"[Multi-Agent] Generating orchestration plan...")
-    plan = get_orchestrator_plan(question, verbose=verbose)
+    plan = get_orchestrator_plan(question, verbose=verbose, chat_history=chat_history)
     
     agent_results = []
     accumulated_context = []
@@ -338,8 +344,8 @@ def run_multi_agent(question: str, verbose: bool = True) -> dict:
             
         if verbose: print(f"--- Running {agent_name} ---")
         
-        # Execute specialist
-        res = agent_funcs[agent_name](full_task, schemas=schemas, verbose=verbose)
+        # Execute specialist, passing chat history
+        res = agent_funcs[agent_name](full_task, schemas=schemas, verbose=verbose, chat_history=chat_history)
         
         if verbose: print(f"--- Critic Evaluating {agent_name} ---")
         run_critic(res, verbose=verbose)
