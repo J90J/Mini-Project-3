@@ -6,25 +6,51 @@ st.set_page_config(page_title="Financial Agent Assistant", page_icon="💹", lay
 
 st.markdown("""
 <style>
-    /* Dark Theme with Neon Green Accents */
+    /* Dark trading-terminal theme, neon green on black */
     .stApp {
         background-color: #0d0d0d;
         color: #ffffff;
+        font-family: 'Courier New', 'IBM Plex Mono', monospace;
+        background-image:
+            linear-gradient(rgba(57,255,20,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(57,255,20,0.03) 1px, transparent 1px);
+        background-size: 22px 22px;
     }
-    
+
     /* Neon Green Header Accent */
     h1, h2, h3 {
         color: #39FF14 !important;
         font-weight: 700;
+        font-family: 'Courier New', monospace !important;
         text-shadow: 0 0 5px rgba(57, 255, 20, 0.4);
     }
-    
+
     /* Custom Sidebar styling */
     [data-testid="stSidebar"] {
         background-color: #1a1a1a !important;
         border-right: 1px solid #333;
     }
-    
+    [data-testid="stSidebar"] * {
+        font-family: 'Courier New', monospace !important;
+    }
+
+    /* Radio + selectbox widgets (dark, neon-green accent) */
+    [data-testid="stSidebar"] [role="radiogroup"] label {
+        color: #cfcfcf !important;
+    }
+    [data-testid="stSidebar"] div[data-baseweb="select"] > div {
+        background-color: #262626 !important;
+        border: 1px solid #404040 !important;
+        color: #fff !important;
+    }
+    [data-testid="stSidebar"] div[data-baseweb="select"]:focus-within > div {
+        border-color: #39FF14 !important;
+        box-shadow: 0 0 5px rgba(57, 255, 20, 0.5) !important;
+    }
+    ul[data-baseweb="menu"] {
+        background-color: #1a1a1a !important;
+    }
+
     /* Neon Green Button Accent */
     .stButton > button {
         background-color: transparent !important;
